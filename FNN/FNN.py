@@ -102,11 +102,11 @@ class outLayer():
         return self.z, self.y
     
 
-    def loss(self, v):
+    def cal_loss(self, v):
         '''
         v is the true label {0, 1, ..., 9}
         '''
-        self.loss = self.MyCrossEntropyLoss(self.y, v) # complete
+        self.loss = self.MyCrossEntropyLoss(self.y, v.int()) # complete
         # self.loss is cross-entropy between self.y and v
         self.g_y = -v/self.y + (1-v)/(1-self.y) # complete
         #  self.g_y is the gradient of loss w.r.t. output
@@ -130,11 +130,11 @@ class myFNN():
         # define the attributes of this class 
         self.input_size = 784
         
-        weights_1 = 0.01*torch.ones(128, 784+1) # complete
+        weights_1 = 0.001*torch.rand(128, 784+1) # complete
         self.hidden_size_1 = 128
         self.hidden1 = hidden(784, 128, weights_1)
         
-        weights_2 = 0.001*torch.rand(128, 128+1) # complete
+        weights_2 = 0.01*torch.rand(128, 128+1) # complete
         self.hidden_size_2 = 128
         self.hidden2 = hidden(128, 128, weights_2)
         
@@ -157,7 +157,8 @@ class myFNN():
         # forward pass through output layer
         self.outLayer.forward(self.hidden2.y)
         # complete
-        self.outLayer.loss(v)
+        #print(v)
+        self.outLayer.cal_loss(v)
         # complete
         return
     def backward(self):
@@ -186,6 +187,7 @@ model = myFNN()
 # for input data-point x and label v pass forward
 model.forward(x,v)
 model.backward()
+
 
 #print(model.hidden1.y)
 #print(model.hidden2.y)
