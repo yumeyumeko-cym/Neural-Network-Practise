@@ -161,19 +161,24 @@ class myFNN():
         self.outLayer.cal_loss(v)
         # complete
         return
-    def backward(self):
+    def backward(self, x):
         # backward pass through output layer
         self.outLayer.backward()
+        #print("output_g_z shape",self.outLayer.g_z.shape)
         # backward pass through hidden layer 2
         self.hidden2.backward(self.outLayer.g_x)
         # backward pass through hidden layer 1
         self.hidden1.backward(self.hidden2.g_x)
-        
+
+
+        dummy = torch.tensor([1], device=x.device, dtype=x.dtype)
+        x_ = torch.cat((dummy,x), axis=0) # complete       
         # Now, compute gradients w.r.t. weights
-        self.grad_1 = self.hidden1.g_x # complete < gradient for layer 1>
-        self.grad_2 = self.hidden2.g_x # complete < gradient for layer 2>
-        self.grad_3 = self.outLayer.g_x # complete < gradient for output layer>
-        return
+        self.grad_3 = torch.outer(self.outLayer.g_z, self.hidden2.y) # complete < gradient for output layer>
+        
+        self.grad_2 = torch.outer(self.hidden2.g_z, self.hidden1.y) # complete < gradient for layer 2>
+
+        self.grad_1 = torch.outer(self.hidden1.g_z, x_) # complete < gradient for layer 1>
     
 
 torch.manual_seed(42)
@@ -186,8 +191,7 @@ v = torch.tensor([0]) ## complete
 model = myFNN()
 # for input data-point x and label v pass forward
 model.forward(x,v)
-model.backward()
-
+model.backward(x)
 
 #print(model.hidden1.y)
 #print(model.hidden2.y)
@@ -200,5 +204,6 @@ print(model.outLayer.g_y)
 #print("\n model.outLayer.g_z: ", model.outLayer.g_z.shape)
 #print("\n model.outLayer.g_x: ", model.outLayer.g_x.shape)
 
+print("\n model.grad2: ", model.grad_3.shape)
 print("\n model.grad2: ", model.grad_2.shape)
-print("\n model.grad1: ", model.grad_1)
+print("\n model.grad1: ", model.grad_1.shape)

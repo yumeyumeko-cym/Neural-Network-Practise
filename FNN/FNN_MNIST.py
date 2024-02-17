@@ -29,7 +29,7 @@ grad_1 = []
 # for input data-point x and label v pass forward
 for i in tqdm(range(len(x))):
     model.forward(x[i],v[i])
-    model.backward()
+    model.backward(x[i])
     grad_1.append(model.grad_1)
 
 
